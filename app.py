@@ -10,7 +10,7 @@ from PIL import Image
 
 from create_maxim_model import Model
 from maxim.configs import MAXIM_CONFIGS
-import con.py
+from con import title , description
 
 CKPT = "google/maxim-s2-dehazing-sots-indoor"
 VARIANT = CKPT.split("/")[-1].split("-")[1]
@@ -92,10 +92,6 @@ def infer(image):
     preds = preds[h_start:h_end, w_start:w_end, :]
 
     return Image.fromarray(np.array((np.clip(preds, 0.0, 1.0) * 255.0).astype(np.uint8)))
-
-
-title = "Dehaze hazy images."
-description = f"The underlying model is [this](https://huggingface.co/{CKPT}). You can use the model to dehaze hazy images. There is [another version of the model](https://hf.co/google/maxim-s2-dehazing-sots-outdoor) (better suited for outdoor images) you can try out. To quickly try out the model, you can choose from the available sample images below, or you can submit your own image. Not that, internally, the model is re-initialized based on the spatial dimensions of the input image and this process is time-consuming."
 
 iface = gr.Interface(
     infer,
