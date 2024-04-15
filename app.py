@@ -10,6 +10,7 @@ from PIL import Image
 
 from create_maxim_model import Model
 from maxim.configs import MAXIM_CONFIGS
+import con.py
 
 CKPT = "google/maxim-s2-dehazing-sots-indoor"
 VARIANT = CKPT.split("/")[-1].split("-")[1]
