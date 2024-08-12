@@ -1,11 +1,11 @@
 import functools
-
 import tensorflow as tf
 from tensorflow.keras import layers
 
 from .attentions import RCAB
 from .misc_gating import CrossGatingBlock, ResidualSplitHeadMultiAxisGmlpLayer
 
+# Define partial functions for common convolution operations
 Conv1x1 = functools.partial(layers.Conv2D, kernel_size=(1, 1), padding="same")
 Conv3x3 = functools.partial(layers.Conv2D, kernel_size=(3, 3), padding="same")
 ConvT_up = functools.partial(
@@ -15,6 +15,11 @@ Conv_down = functools.partial(
     layers.Conv2D, kernel_size=(4, 4), strides=(2, 2), padding="same"
 )
 
+# Custom layer to handle concatenation in a Keras-compatible way
+class ConcatLayer(tf.keras.layers.Layer):
+    def call(self, inputs):
+        x, skip = inputs
+        return tf.concat([x, skip], axis=-1)
 
 def UNetEncoderBlock(
     num_channels: int,
@@ -37,7 +42,7 @@ def UNetEncoderBlock(
 
     def apply(x, skip=None, enc=None, dec=None):
         if skip is not None:
-            x = tf.concat([x, skip], axis=-1)
+            x = ConcatLayer()([x, skip])
 
         # convolution-in
         x = Conv1x1(filters=num_channels, use_bias=use_bias, name=f"{name}_Conv_0")(x)
@@ -105,7 +110,6 @@ def UNetDecoderBlock(
     use_bias: bool = True,
     name: str = "unet_decoder",
 ):
-
     """Decoder block in MAXIM."""
 
     def apply(x, bridge=None):
